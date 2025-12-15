@@ -20,7 +20,11 @@ import {
   CalendarCheck,
   Contact,
   FileBarChart,
-  Settings
+  Settings,
+  Upload,
+  QrCode,
+  ScanLine,
+  ClipboardCheck
 } from 'lucide-react';
 import '../styles/dashboard.css';
 
@@ -41,7 +45,7 @@ export default function DashboardLayout({ children }) {
   };
 
   const menuItems = [
-    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', roles: ['Administrador', 'Docente'] },
+    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', roles: ['Administrador'] },
     { path: '/dashboard/roles', icon: Shield, label: 'Roles', roles: ['Administrador'] },
     { path: '/dashboard/usuarios', icon: Users, label: 'Usuarios', roles: ['Administrador'] },
     { path: '/dashboard/permisos', icon: Key, label: 'Permisos', roles: ['Administrador'] },
@@ -57,6 +61,11 @@ export default function DashboardLayout({ children }) {
     { path: '/dashboard/mi-horario', icon: Contact, label: 'Mi Horario', roles: ['Docente'] },
     { path: '/dashboard/reportes', icon: FileBarChart, label: 'Reportes', roles: ['Administrador'] },
     { path: '/dashboard/reportes-dinamicos', icon: Settings, label: 'Reportes Dinámicos', roles: ['Administrador'] },
+    { path: '/dashboard/importar-usuarios', icon: Upload, label: 'Importar Usuarios', roles: ['Administrador'] },
+    { path: '/dashboard/generar-qr', icon: QrCode, label: 'Generar QR', roles: ['Administrador'] },
+    { path: '/dashboard/mis-qrs', icon: QrCode, label: 'Mis QRs', roles: ['Docente'] },
+    { path: '/dashboard/escanear-asistencia', icon: ScanLine, label: 'Escanear Asistencia', roles: ['Docente'] },
+    { path: '/dashboard/mis-asistencias', icon: ClipboardCheck, label: 'Mis Asistencias', roles: ['Docente'] },
   ];
 
   // Filtrar menú según el rol del usuario

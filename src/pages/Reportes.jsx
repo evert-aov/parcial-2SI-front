@@ -37,6 +37,15 @@ export default function Reportes() {
   const [docentes, setDocentes] = useState([]);
   const [horariosDisponibles, setHorariosDisponibles] = useState([]);
 
+  // Estados para Asistencias
+  const [tipoAsistencia, setTipoAsistencia] = useState('docente');
+  const [docenteSeleccionado, setDocenteSeleccionado] = useState('');
+  const [grupoSeleccionado, setGrupoSeleccionado] = useState('');
+  const [fechaInicio, setFechaInicio] = useState('');
+  const [fechaFin, setFechaFin] = useState('');
+  const [datosAsistencia, setDatosAsistencia] = useState(null);
+  const [loadingAsistencias, setLoadingAsistencias] = useState(false);
+
   useEffect(() => {
     fetchDashboardStats();
     fetchCatalogos();
@@ -318,6 +327,35 @@ export default function Reportes() {
     doc.save(`aulas_disponibles_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
+  const fetchAsistencias = async () => {
+    setLoadingAsistencias(true);
+    try {
+      const token = localStorage.getItem('token');
+      const endpoint = tipoAsistencia === 'docente' 
+        ? 'asistencias-docente' 
+        : 'asistencias-grupo';
+      
+      const params = new URLSearchParams();
+      if (tipoAsistencia === 'docente' && docenteSeleccionado) {
+        params.append('docente_id', docenteSeleccionado);
+      } else if (tipoAsistencia === 'grupo' && grupoSeleccionado) {
+        params.append('grupo_id', grupoSeleccionado);
+      }
+      if (fechaInicio) params.append('fecha_inicio', fechaInicio);
+      if (fechaFin) params.append('fecha_fin', fechaFin);
+
+      const response = await fetch(`${API_URL}/api/reportes/${endpoint}?${params}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      setDatosAsistencia(data);
+    } catch (error) {
+      console.error('Error al cargar asistencias:', error);
+    } finally {
+      setLoadingAsistencias(false);
+    }
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -514,6 +552,186 @@ export default function Reportes() {
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      {/* Asistencias por Docente y Grupo */}
+      <div className="card" style={{ marginBottom: '2rem' }}>
+        <div className="card__header">
+          <h3 className="card__title">
+            <Users size={20} style={{ display: 'inline', marginRight: '0.5rem' }} />
+            Asistencias por Docente y Grupo
+          </h3>
+        </div>
+
+        <div className="card__body">
+          {/* Filtros */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+            <div className="form-group">
+              <label className="form-label">Tipo de Reporte</label>
+              <select 
+                className="form-input"
+                value={tipoAsistencia}
+                onChange={(e) => setTipoAsistencia(e.target.value)}
+              >
+                <option value="docente">Por Docente</option>
+                <option value="grupo">Por Grupo</option>
+              </select>
+            </div>
+
+            {tipoAsistencia === 'docente' && (
+              <div className="form-group">
+                <label className="form-label">Docente</label>
+                <select 
+                  className="form-input"
+                  value={docenteSeleccionado}
+                  onChange={(e) => setDocenteSeleccionado(e.target.value)}
+                >
+                  <option value="">Seleccionar docente</option>
+                  {docentes.map(d => (
+                    <option key={d.id} value={d.id}>
+                      {d.usuario?.nombre} {d.usuario?.apellido}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {tipoAsistencia === 'grupo' && (
+              <div className="form-group">
+                <label className="form-label">Grupo</label>
+                <select 
+                  className="form-input"
+                  value={grupoSeleccionado}
+                  onChange={(e) => setGrupoSeleccionado(e.target.value)}
+                >
+                  <option value="">Seleccionar grupo</option>
+                  {grupos.map(g => (
+                    <option key={g.id} value={g.id}>{g.nombre}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <div className="form-group">
+              <label className="form-label">Fecha Inicio</label>
+              <input 
+                type="date"
+                className="form-input"
+                value={fechaInicio}
+                onChange={(e) => setFechaInicio(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Fecha Fin</label>
+              <input 
+                type="date"
+                className="form-input"
+                value={fechaFin}
+                onChange={(e) => setFechaFin(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end' }}>
+              <button 
+                className="btn btn--primary"
+                onClick={fetchAsistencias}
+                disabled={loadingAsistencias}
+              >
+                <Search size={16} />
+                {loadingAsistencias ? 'Cargando...' : 'Generar Reporte'}
+              </button>
+            </div>
+          </div>
+
+          {/* Resultados por Docente */}
+          {datosAsistencia && tipoAsistencia === 'docente' && datosAsistencia.estadisticas && (
+            <div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div className="card" style={{ padding: '1.5rem', textAlign: 'center', background: '#eff6ff', border: '1px solid #bfdbfe' }}>
+                  <div style={{ fontSize: '2rem', fontWeight: '700', color: '#1e40af' }}>
+                    {datosAsistencia.estadisticas.total_clases}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' }}>
+                    Total Clases
+                  </div>
+                </div>
+
+                <div className="card" style={{ padding: '1.5rem', textAlign: 'center', background: '#dcfce7', border: '1px solid #86efac' }}>
+                  <div style={{ fontSize: '2rem', fontWeight: '700', color: '#166534' }}>
+                    {datosAsistencia.estadisticas.presentes}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' }}>
+                    Presentes
+                  </div>
+                </div>
+
+                <div className="card" style={{ padding: '1.5rem', textAlign: 'center', background: '#fef3c7', border: '1px solid #fde047' }}>
+                  <div style={{ fontSize: '2rem', fontWeight: '700', color: '#92400e' }}>
+                    {datosAsistencia.estadisticas.retrasados}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' }}>
+                    Retrasados
+                  </div>
+                </div>
+
+                <div className="card" style={{ padding: '1.5rem', textAlign: 'center', background: '#fee2e2', border: '1px solid #fca5a5' }}>
+                  <div style={{ fontSize: '2rem', fontWeight: '700', color: '#991b1b' }}>
+                    {datosAsistencia.estadisticas.faltas}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' }}>
+                    Faltas
+                  </div>
+                </div>
+
+                <div className="card" style={{ padding: '1.5rem', textAlign: 'center', background: '#e0e7ff', border: '1px solid #a5b4fc' }}>
+                  <div style={{ fontSize: '2rem', fontWeight: '700', color: '#4338ca' }}>
+                    {datosAsistencia.estadisticas.porcentaje_asistencia}%
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' }}>
+                    % Asistencia
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Resultados por Grupo */}
+          {datosAsistencia && tipoAsistencia === 'grupo' && datosAsistencia.por_docente && (
+            <div className="table-container">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Docente</th>
+                    <th>Total</th>
+                    <th>Presentes</th>
+                    <th>Retrasados</th>
+                    <th>Faltas</th>
+                    <th>% Asistencia</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {datosAsistencia.por_docente.map((d, idx) => (
+                    <tr key={idx}>
+                      <td><strong>{d.docente}</strong></td>
+                      <td>{d.total}</td>
+                      <td><span className="badge badge--success">{d.presentes}</span></td>
+                      <td><span className="badge badge--warning">{d.retrasados}</span></td>
+                      <td><span className="badge badge--danger">{d.faltas}</span></td>
+                      <td><strong style={{ color: d.porcentaje >= 80 ? '#166534' : '#991b1b' }}>{d.porcentaje}%</strong></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {!datosAsistencia && !loadingAsistencias && (
+            <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+              Selecciona los filtros y haz clic en "Generar Reporte"
+            </div>
+          )}
         </div>
       </div>
 

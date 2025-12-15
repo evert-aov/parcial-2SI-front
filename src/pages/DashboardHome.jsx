@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
+import { useNavigate } from 'react-router-dom';
 import { 
   Users, 
   BookOpen, 
@@ -33,10 +34,18 @@ import {
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const userRole = localStorage.getItem('rol');
 
   const COLORS = ['#4f46e5', '#16a34a', '#d97706', '#dc2626', '#8b5cf6'];
+
+  // Redirigir a docentes a su horario
+  useEffect(() => {
+    if (userRole === 'Docente') {
+      navigate('/dashboard/mi-horario');
+    }
+  }, [userRole, navigate]);
 
   useEffect(() => {
     fetchDashboardStats();
@@ -52,16 +61,24 @@ export default function Dashboard() {
       });
       const statsData = await statsRes.json();
 
-      setStats({
-        ...statsData,
-        total_usuarios: 50, // Valor por defecto
-        total_materias: 30, // Valor por defecto
-        total_aulas: 20, // Valor por defecto
-        reservas_aprobadas: 15, // Valor por defecto
-        reservas_rechazadas: 5, // Valor por defecto
-      });
+      // Usar datos reales del backend
+      setStats(statsData);
     } catch (error) {
       console.error('Error al cargar estadísticas:', error);
+      // En caso de error, usar valores por defecto
+      setStats({
+        total_usuarios: 0,
+        docentes_activos: 0,
+        total_materias: 0,
+        materias_asignadas: 0,
+        total_aulas: 0,
+        aulas_en_uso: 0,
+        reservas_pendientes: 0,
+        reservas_aprobadas: 0,
+        reservas_rechazadas: 0,
+        reservas_canceladas: 0,
+        asignaciones_por_dia: []
+      });
     } finally {
       setLoading(false);
     }
@@ -92,59 +109,6 @@ export default function Dashboard() {
     { name: 'Materias', activos: stats?.materias_asignadas || 0, total: stats?.total_materias || 0 },
     { name: 'Aulas', activos: stats?.aulas_en_uso || 0, total: stats?.total_aulas || 0 }
   ];
-
-  // Vista para Docentes
-  if (userRole === 'Docente') {
-    return (
-      <DashboardLayout>
-        <div className="page-header">
-          <div>
-            <h1 className="page-header__title">Bienvenido, {user.nombre || 'Docente'}</h1>
-            <p className="page-header__subtitle">Panel de Docente</p>
-          </div>
-        </div>
-
-        <div className="card" style={{ marginBottom: '2rem', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-          <div className="card__body" style={{ padding: '2rem', textAlign: 'center', color: 'white' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem' }}>
-              ¡Bienvenido al Sistema de Gestión Académica!
-            </h2>
-            <p style={{ fontSize: '1rem', opacity: 0.9 }}>
-              Utiliza el menú lateral para acceder a tus funciones
-            </p>
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-          <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
-            <div style={{ display: 'inline-flex', padding: '1rem', borderRadius: '50%', background: '#e0e7ff', marginBottom: '1rem' }}>
-              <Calendar size={32} color="#4f46e5" />
-            </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Mi Horario</h3>
-            <p style={{ color: '#64748b', marginBottom: '1rem' }}>
-              Consulta tu carga horaria y asignaciones
-            </p>
-            <a href="/dashboard/mi-horario" className="btn btn--primary">
-              Ver Horario
-            </a>
-          </div>
-
-          <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
-            <div style={{ display: 'inline-flex', padding: '1rem', borderRadius: '50%', background: '#dcfce7', marginBottom: '1rem' }}>
-              <DoorOpen size={32} color="#16a34a" />
-            </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>Reservas</h3>
-            <p style={{ color: '#64748b', marginBottom: '1rem' }}>
-              Gestiona tus reservas de aulas
-            </p>
-            <a href="/dashboard/reservas" className="btn btn--primary">
-              Ver Reservas
-            </a>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
 
   // Vista completa para Administradores
   return (

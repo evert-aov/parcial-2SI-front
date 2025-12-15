@@ -18,6 +18,11 @@ import Reservas from './pages/Reservas';
 import MiCargaHoraria from './pages/MiCargaHoraria';
 import Reportes from './pages/Reportes';
 import ReportesDinamicos from './pages/ReportesDinamicos';
+import ImportarUsuarios from './pages/ImportarUsuarios';
+import GenerarQR from './pages/GenerarQR';
+import EscanearAsistencia from './pages/EscanearAsistencia';
+import MisAsistencias from './pages/MisAsistencias';
+import MisQRs from './pages/MisQRs';
 
 function App() {
   return (
@@ -40,6 +45,11 @@ function App() {
       <Route path="/dashboard/mi-horario" element={<MiCargaHoraria />} />
       <Route path="/dashboard/reportes" element={<Reportes />} />
       <Route path="/dashboard/reportes-dinamicos" element={<ReportesDinamicos />} />
+      <Route path="/dashboard/importar-usuarios" element={<ImportarUsuarios />} />
+      <Route path="/dashboard/generar-qr" element={<GenerarQR />} />
+      <Route path="/dashboard/escanear-asistencia" element={<EscanearAsistencia />} />
+      <Route path="/dashboard/mis-asistencias" element={<MisAsistencias />} />
+      <Route path="/dashboard/mis-qrs" element={<MisQRs />} />
     </Routes>
   );
 }

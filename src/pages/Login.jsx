@@ -34,8 +34,14 @@ export default function Login() {
 
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('rol', data.user.rol);
 
-      navigate('/dashboard');
+      // Redirigir según el rol del usuario
+      if (data.user.rol === 'Docente') {
+        navigate('/dashboard/mi-horario');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError('Error de conexión. Intenta de nuevo.');
       setLoading(false);
