@@ -62,7 +62,6 @@ export default function DashboardLayout({ children }) {
     { path: '/dashboard/reportes', icon: FileBarChart, label: 'Reportes', roles: ['Administrador'] },
     { path: '/dashboard/reportes-dinamicos', icon: Settings, label: 'Reportes Dinámicos', roles: ['Administrador'] },
     { path: '/dashboard/importar-usuarios', icon: Upload, label: 'Importar Usuarios', roles: ['Administrador'] },
-    { path: '/dashboard/generar-qr', icon: QrCode, label: 'Generar QR', roles: ['Administrador'] },
     { path: '/dashboard/mis-qrs', icon: QrCode, label: 'Mis QRs', roles: ['Docente'] },
     { path: '/dashboard/escanear-asistencia', icon: ScanLine, label: 'Escanear Asistencia', roles: ['Docente'] },
     { path: '/dashboard/mis-asistencias', icon: ClipboardCheck, label: 'Mis Asistencias', roles: ['Docente'] },

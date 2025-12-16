@@ -589,8 +589,8 @@ export default function Reportes() {
                 >
                   <option value="">Seleccionar docente</option>
                   {docentes.map(d => (
-                    <option key={d.id} value={d.id}>
-                      {d.usuario?.nombre} {d.usuario?.apellido}
+                    <option key={d.coddocente} value={d.coddocente}>
+                      {d.nombre} {d.apellido}
                     </option>
                   ))}
                 </select>
@@ -607,7 +607,7 @@ export default function Reportes() {
                 >
                   <option value="">Seleccionar grupo</option>
                   {grupos.map(g => (
-                    <option key={g.id} value={g.id}>{g.nombre}</option>
+                    <option key={g.idgrupo} value={g.idgrupo}>{g.nombre}</option>
                   ))}
                 </select>
               </div>
