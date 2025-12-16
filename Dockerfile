@@ -13,6 +13,10 @@ RUN npm install --production=false
 # Copiar código fuente
 COPY . .
 
+# Argumento de build para la URL del API
+ARG REACT_APP_API_URL
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
 # Build de producción
 RUN npm run build
 
@@ -28,8 +32,12 @@ COPY --from=build /app/build /usr/share/nginx/html
 # Copiar configuración de nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Exponer puerto 80
+# Copiar script de entrypoint
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Exponer puerto 80 (Railway usará PORT env var)
 EXPOSE 80
 
 # Comando de inicio
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/docker-entrypoint.sh"]

@@ -1,7 +1,10 @@
 #!/bin/sh
 
-# Reemplazar el puerto en la configuración de nginx con el valor de la variable PORT
-envsubst '${PORT}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
+# Replace PORT in nginx config if PORT env var is set
+if [ -n "$PORT" ]; then
+    sed -i "s/listen 80;/listen $PORT;/g" /etc/nginx/conf.d/default.conf
+    sed -i "s/listen \[::\]:80;/listen [::]:$PORT;/g" /etc/nginx/conf.d/default.conf
+fi
 
-# Iniciar nginx
-exec nginx -g 'daemon off;'
+# Start nginx
+nginx -g 'daemon off;'
