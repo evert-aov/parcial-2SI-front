@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import { Plus, Edit, Trash2, Search, X, AlertTriangle, Eye, GraduationCap, Briefcase } from 'lucide-react';
 
-const API_URL = 'http://127.0.0.1:8000';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 export default function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
