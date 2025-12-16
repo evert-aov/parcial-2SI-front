@@ -19,6 +19,9 @@ RUN npm run build
 # Etapa de producción con Nginx
 FROM nginx:alpine
 
+# Instalar gettext para envsubst
+RUN apk add --no-cache gettext
+
 # Copiar build de React
 COPY --from=build /app/build /usr/share/nginx/html
 
