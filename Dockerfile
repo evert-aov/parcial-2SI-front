@@ -22,11 +22,15 @@ FROM nginx:alpine
 # Copiar build de React
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Copiar configuración de nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copiar configuración de nginx como template
+COPY nginx.conf /etc/nginx/conf.d/default.conf.template
 
-# Exponer puerto
+# Copiar script de entrypoint
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Exponer puerto (Railway lo asignará dinámicamente)
 EXPOSE 80
 
 # Comando de inicio
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/docker-entrypoint.sh"]
